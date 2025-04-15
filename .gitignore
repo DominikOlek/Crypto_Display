@@ -1,3 +1,9 @@
+cmake-build-debug-visual-studio
+cmake-build-release
+vcpkg/
+.idea
+wxWidgets-3.2.6
+
 # Prerequisites
 *.d
 
