@@ -9,6 +9,7 @@ class Queue;
 class SearchPanel;
 class BleSender;
 class MainFrame;
+class AllClasses;
 
 class NetworkController {
 private:
@@ -20,7 +21,7 @@ private:
     BleSender *bleClass_;
     MainFrame* gui_;
 public:
-    NetworkController(SearchPanel& searchPanel, MainFrame& gui,Queue& elementQueue);
+    NetworkController(SearchPanel& searchPanel, MainFrame& gui,Queue& elementQueue,AllClasses& classes);
     void getCurrent(std::atomic<bool>& stop_flag) const;
     std::thread RunTask(std::atomic<bool>& stop_flag) const;
     ~NetworkController();

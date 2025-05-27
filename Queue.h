@@ -16,6 +16,7 @@ class Queue {
         size_t getCurrentIndex();
         void setIndex(size_t ind);
         std::vector<std::pair<std::string,std::string>> getList() const;
+        bool findPair(std::string crypto, std::string currency);
 private:
     std::vector<std::pair<std::string,std::string>> list;
     size_t index = 0;

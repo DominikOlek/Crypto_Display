@@ -3,11 +3,14 @@
 #include "NetworkController.h"
 #include "Queue.h"
 #include "Windows.h"
+#include "allClasses.h"
 
-SearchPanel::SearchPanel(MainFrame& gui) {
+SearchPanel::SearchPanel(MainFrame& gui, AllClasses& classes) {
     gui_ = &gui;
     queue_ = new Queue(*this);
-    network_ = (new NetworkController(*this,*gui_,*queue_));
+    network_ = (new NetworkController(*this,*gui_,*queue_,classes));
+    classes.queue = queue_;
+    classes.network = network_;
 };
 
 
@@ -39,10 +42,13 @@ void SearchPanel::setCur(std::string cur) {
     }
 }
 
-void SearchPanel::addToQueue(std::string cur) {
+bool SearchPanel::addToQueue(std::string cur) {
     currencySymbol = cur;
+    if (queue_->findPair(coinSymbol, currencySymbol))
+        return false;
     queue_->addPair(coinSymbol, currencySymbol);
     setCur(cur);
+    return true;
 }
 
 bool SearchPanel::searchCoin(std::string coin) const{

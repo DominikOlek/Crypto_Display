@@ -7,17 +7,18 @@
 class Queue;
 class NetworkController;
 class MainFrame;
+class AllClasses;
 
 class SearchPanel {
 public:
-    SearchPanel(MainFrame& gui);
+    SearchPanel(MainFrame& gui, AllClasses& classes);
     std::vector<std::string> getCoins() const;
     std::vector<std::string> getCurrences() const;
     Queue* getQueue() const;
     void clear();
     void setCoin(std::string coin);
     void setCur(std::string cur);
-    void addToQueue(std::string cur);
+    bool addToQueue(std::string cur);
     bool searchCoin(std::string coin) const;
     void addCoin(std::string coin);
     void addCurrency(std::string coin,std::string curr = "");

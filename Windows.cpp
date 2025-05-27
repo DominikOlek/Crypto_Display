@@ -5,6 +5,7 @@
 
 #include "Queue.h"
 #include "SearchPanel.h"
+#include "allClasses.h"
 
 wxListBox* listCryp;
 wxListBox* listCoin;
@@ -25,14 +26,22 @@ std::unordered_map<std::string,std::pair<wxGBPosition,wxGBSpan>> MainFrame::item
     {"size",{{4,8},{1,1}}}
 };
 
+
 void setStyleList(wxListBox& list) {
     list.SetBackgroundColour(wxColour(150,150,150));
     list.SetForegroundColour(wxColour(255,192,0));
     list.SetFont(wxFont(12, wxFONTFAMILY_MODERN, wxFONTSTYLE_MAX, wxFONTWEIGHT_BOLD));
 }
 
-MainFrame::MainFrame(const wxString &title, const wxSize &size):wxFrame(nullptr,wxID_ANY,title,wxDefaultPosition,size) {
-    searchPanel = new SearchPanel(*this);
+void MainFrame::setAllClasses(AllClasses* allClasses) {
+    searchPanel = allClasses->searchPanel;
+};
+
+MainFrame::MainFrame(const wxString &title, const wxSize &size,AllClasses& classes):wxFrame(nullptr,wxID_ANY,title,wxDefaultPosition,size) {
+    searchPanel = new SearchPanel(*this,classes);
+    classes.mainFrame = this;
+    classes.searchPanel = searchPanel;
+    allClasses = &classes;
 
     Bind(wxEVT_CLOSE_WINDOW, &MainFrame::OnClose, this);
     mainSizer = new wxBoxSizer(wxVERTICAL);
@@ -50,6 +59,47 @@ MainFrame::MainFrame(const wxString &title, const wxSize &size):wxFrame(nullptr,
     mainSizer->Add(mainView,1,wxEXPAND | wxALL,margin);
     this->SetSizerAndFit(mainSizer);
     changeCoins();
+    fileMenu->Append(wxID_FILE, "&Skanuj ekrany", "Szukaj pobliskich ekranow");
+    menuBar->Append(fileMenu, "&Ekrany");
+    SetMenuBar(menuBar);
+    Bind(wxEVT_MENU,&BleSender::RunSearch, classes.bleClass, wxID_FILE);
+    Bind(wxEVT_MENU, &MainFrame::LoadSearched, this, 999);
+}
+
+void MainFrame::Load() {
+    wxCommandEvent evt(wxEVT_MENU, 999);
+    wxPostEvent(mainView, evt);
+}
+
+void MainFrame::LoadSearched(wxCommandEvent& event) {
+    deviceMap.clear();
+    while (fileMenu->GetMenuItemCount() > 1) {
+        wxMenuItem* item = fileMenu->FindItemByPosition(1);
+        if (item) {
+            fileMenu->Remove(item);
+            delete item;
+        }
+    }
+
+    for (const auto& [key, value] : allClasses->bleClass->devices) {
+        int id = wxID_ANY;
+        deviceMap[id] = key;
+        if (value.size() == 0) {
+            fileMenu->Append(id, "Ekran "+std::to_string(id));
+        }else{
+            fileMenu->Append(id, winrt::to_string(value));
+        }
+        Bind(wxEVT_MENU, &MainFrame::OnDeviceSelected, this, id);
+    }
+    Bind(wxEVT_MENU,&BleSender::RunSearch, allClasses->bleClass, wxID_FILE);
+}
+
+void MainFrame::OnDeviceSelected(wxCommandEvent& event) {
+    int id = event.GetId();
+    auto it = deviceMap.find(id);
+    if (it != deviceMap.end()) {
+        allClasses->bleClass->deviceAddress = it->second;
+    }
 }
 
 void MainFrame::SetLayout() {
@@ -120,8 +170,8 @@ void MainFrame::onCoinSelect(wxCommandEvent &event) {
     if (selection != wxNOT_FOUND) {
         wxString selectedText = listCoin->GetString(selection);
         selectedCoin = selectedText.ToStdString();
-        searchPanel->addToQueue(selectedCoin);
-        editQueue();
+        if (searchPanel->addToQueue(selectedCoin))
+            editQueue();
     }
 }
 void MainFrame::changeCoins(const std::string& search) {

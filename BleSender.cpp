@@ -1,17 +1,14 @@
 
 #include "BleSender.h"
+
+#include "Windows.h"
+#include "allClasses.h"
 #include "Queue.h"
 
-using namespace winrt;
-using namespace Windows::Devices::Bluetooth;
-using namespace Windows::Devices::Bluetooth::GenericAttributeProfile;
-using namespace Windows::Storage::Streams;
 
-static const uint64_t deviceAddress = 1955954709318;
-
-
-BleSender::BleSender(Queue &queue) {
+BleSender::BleSender(Queue &queue,AllClasses& classes) {
     queue_ = &queue;
+    allClasses = &classes;
 }
 
 
@@ -20,6 +17,40 @@ std::wstring BleSender::to_wstring(const std::string& stringToConvert) const
     std::wstring wideString =
         std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(stringToConvert);
     return wideString;
+}
+
+void BleSender::RunSearch(wxCommandEvent& event) {
+    std::thread([this]() {
+        searchDevice();
+    }).detach();
+}
+
+
+void BleSender::OnAdvertisementReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args) {
+    auto adv = args.Advertisement();
+    std::wcout << L"Znaleziono  " << args.BluetoothAddress() << std::endl;
+    for (auto const& uuid : adv.ServiceUuids()) {
+        if (uuid == guid(L"12345678-1234-5678-1234-56789abcdef0")) {
+            std::wcout << L"Znaleziono  " << args.BluetoothAddress() << std::endl;
+            devices[args.BluetoothAddress()] = adv.LocalName();
+            deviceAddress = args.BluetoothAddress();
+            break;
+        }
+    }
+}
+
+void BleSender::searchDevice() {
+    BluetoothLEAdvertisementWatcher watcher;
+    watcher.ScanningMode(BluetoothLEScanningMode::Active);
+    watcher.Received([this](BluetoothLEAdvertisementWatcher const& sender, BluetoothLEAdvertisementReceivedEventArgs const& args) {
+        this->OnAdvertisementReceived(sender, args);
+    });
+    devices.clear();
+    deviceAddress = 0;
+    watcher.Start();
+    Sleep(4000);
+    watcher.Stop();
+    allClasses->mainFrame->Load();
 }
 
 void BleSender::sendData(std::string data, bool flag) const {
@@ -74,7 +105,8 @@ void BleSender::sendData(std::string data, bool flag) const {
             throw std::runtime_error("Could not find characteristic.");
         }
     }
-    else {
-        throw std::runtime_error("Could not find service.");
-    }
+    // else {
+    //     std::cout << "Brak BLE";
+    //     //throw std::runtime_error("Could not find service.");
+    // }
 }

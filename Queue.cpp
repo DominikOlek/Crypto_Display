@@ -3,6 +3,8 @@
 #include "SearchPanel.h"
 
 #include <stdexcept>
+#include <utility>
+#include <utility>
 
 Queue::Queue(SearchPanel &searchPanel) {
     searchPanel_ = &searchPanel;
@@ -55,5 +57,10 @@ std::vector<std::pair<std::string, std::string> > Queue::getList() const {
     return list;
 }
 
-
+bool Queue::findPair(std::string crypto, std::string currency) {
+    if (std::find(list.begin(),list.end(),std::pair(crypto,currency)) != list.end()) {
+        return true;
+    }
+    return false;
+}
 

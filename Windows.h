@@ -7,12 +7,15 @@
 #include "wx/richtext/richtextbuffer.h"
 #include <cstring>
 
+class AllClasses;
 class SearchPanel;
 
 class MainFrame : public wxFrame {
     public:
-        MainFrame(const wxString& title, const wxSize& size);
+        MainFrame(const wxString& title, const wxSize& size,AllClasses& classes);
         void writeValue(const std::string &readBuffer);
+        void setAllClasses(AllClasses* allClasses);
+        void Load();
     private:
         void OnClose(wxCloseEvent& event);
         void onCrypSelect(wxCommandEvent& event);
@@ -21,6 +24,7 @@ class MainFrame : public wxFrame {
         void changeCrypto(const std::string& search="");
         void UpdateView();
         void SetLayout();
+        void LoadSearched(wxCommandEvent& event);
         static std::unordered_map<std::string,std::pair<wxGBPosition,wxGBSpan>> items;
         wxPanel* mainView;
         wxGridBagSizer* sizer;
@@ -33,4 +37,10 @@ class MainFrame : public wxFrame {
         void onQueueSelect(wxCommandEvent &event);
         void deleteElement(wxCommandEvent &event);
         friend SearchPanel;
+        AllClasses* allClasses;
+        wxMenuBar* menuBar = new wxMenuBar();
+        wxMenu* fileMenu = new wxMenu();
+        std::unordered_map<int, uint64_t> deviceMap;
+        int nextId = 1000;
+        void OnDeviceSelected(wxCommandEvent& event);
 };

@@ -3,6 +3,7 @@
 #include "Queue.h"
 #include "SearchPanel.h"
 #include "Windows.h"
+#include "allClasses.h"
 
 size_t NetworkController::WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
     size_t totalSize = size * nmemb;
@@ -10,8 +11,9 @@ size_t NetworkController::WriteCallback(void* contents, size_t size, size_t nmem
     return totalSize;
 }
 
-NetworkController::NetworkController(SearchPanel& searchPanel,MainFrame& gui,Queue& elementQueue): searchPanel_(searchPanel), gui_(&gui) {
-    bleClass_ = new BleSender(elementQueue);
+NetworkController::NetworkController(SearchPanel& searchPanel,MainFrame& gui,Queue& elementQueue, AllClasses& classes): searchPanel_(searchPanel), gui_(&gui) {
+    bleClass_ = new BleSender(elementQueue,classes);
+    classes.bleClass = bleClass_;
     getPossibility();
 }
 
