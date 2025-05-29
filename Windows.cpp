@@ -15,14 +15,19 @@ std::string selectedCoin = "";
 wxStaticText* value = nullptr;
 
 std::unordered_map<std::string,std::pair<wxGBPosition,wxGBSpan>> MainFrame::items = {
-    {"title",{{1,1},{1,7}}}, //title
-    {"crypsearch",{{2,1},{1,1}}}, // crypsearch
+    {"title",{{0,0},{1,8}}}, //title
+    {"crypsearch",{{2,1},{1,1}}},
+    {"cryplabel",{{2,0},{1,1}}},
+    {"crypTitle",{{1,1},{1,1}}},// crypTitle
     {"cryp",{{3,1},{1,1}}}, //cryp
-    {"coinsearch",{{2,2},{1,1}}}, //coinsearch
-    {"coin",{{3,2},{1,1}}}, //coin
-    {"data",{{2,4},{1,2}}}, //data
-    {"queue",{{3,4},{1,3}}},
-{"delqueue",{{4,4},{1,3}}},
+    {"coinsearch",{{2,3},{1,1}}}, //coinsearch
+    {"coinlabel",{{2,2},{1,1}}},
+    {"coinTitle",{{1,3},{1,1}}},
+    {"coin",{{3,3},{1,1}}}, //coin
+    {"data",{{2,5},{1,3}}}, //data
+    {"queueTitle",{{1,5},{1,3}}},
+    {"queue",{{3,5},{1,3}}},
+    {"delqueue",{{4,5},{1,3}}},
     {"size",{{4,8},{1,1}}}
 };
 
@@ -102,11 +107,32 @@ void MainFrame::OnDeviceSelected(wxCommandEvent& event) {
     }
 }
 
+void MainFrame::setTextStyle(wxWindow* label, int size) {
+    label->SetForegroundColour(wxColour(255,192,0));
+    label->SetFont(wxFont(size, wxFONTFAMILY_MODERN, wxFONTSTYLE_MAX, wxFONTWEIGHT_BOLD));
+}
+
 void MainFrame::SetLayout() {
     wxPanel* p = new wxPanel(mainView,wxID_ANY,wxDefaultPosition,sizer->GetEmptyCellSize());
     sizer->Add(p,items["size"].first,items["size"].second,wxEXPAND | wxALL,margin);
     wxStaticText* title = new wxStaticText(mainView,wxID_ANY,wxT("KRYPTORUCHY"));
     sizer->Add(title,items["title"].first,items["title"].second,wxEXPAND |wxALIGN_CENTER_HORIZONTAL| wxALL,margin);
+
+    wxStaticText* crypSearch = new wxStaticText(mainView,wxID_ANY,wxT("Szukaj: "));
+    sizer->Add(crypSearch,items["cryplabel"].first,items["cryplabel"].second,wxALIGN_CENTER_HORIZONTAL | wxALL,margin);
+
+    wxStaticText* coinSearch = new wxStaticText(mainView,wxID_ANY,wxT("Szukaj: "));
+    sizer->Add(coinSearch,items["coinlabel"].first,items["coinlabel"].second,wxALIGN_CENTER_HORIZONTAL | wxALL,margin);
+
+    wxStaticText* queue = new wxStaticText(mainView,wxID_ANY,wxT("Kolejka: "));
+    sizer->Add(queue,items["queueTitle"].first,items["queueTitle"].second,wxALIGN_CENTER_HORIZONTAL | wxALL,margin);
+
+    wxStaticText* cryp = new wxStaticText(mainView,wxID_ANY,wxT("Kryptowaluty: "));
+    sizer->Add(cryp,items["crypTitle"].first,items["crypTitle"].second,wxALIGN_CENTER_HORIZONTAL | wxALL,margin);
+
+    wxStaticText* coin = new wxStaticText(mainView,wxID_ANY,wxT("Waluty: "));
+    sizer->Add(coin,items["coinTitle"].first,items["coinTitle"].second,wxALIGN_CENTER_HORIZONTAL | wxALL,margin);
+
     mainView->SetBackgroundColour(wxColour(65,65,65));
     value = new wxStaticText(mainView,wxID_ANY,wxT("Wybierz"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
     sizer->Add(value,items["data"].first,items["data"].second,wxEXPAND  |wxALIGN_CENTER_HORIZONTAL | wxALL,margin);
@@ -115,12 +141,14 @@ void MainFrame::SetLayout() {
     sizer->Add(delButton,items["delqueue"].first,items["delqueue"].second,wxEXPAND  |wxALIGN_CENTER_HORIZONTAL | wxALL,margin);
     delButton->Bind(wxEVT_BUTTON, &MainFrame::deleteElement, this);
 
-    title->SetForegroundColour(wxColour(255,192,0));
-    title->SetFont(wxFont(25, wxFONTFAMILY_MODERN, wxFONTSTYLE_MAX, wxFONTWEIGHT_BOLD));
-    value->SetForegroundColour(wxColour(255,192,0));
-    value->SetFont(wxFont(18, wxFONTFAMILY_MODERN, wxFONTSTYLE_MAX, wxFONTWEIGHT_BOLD));
-    delButton->SetForegroundColour(wxColour(255,192,0));
-    delButton->SetFont(wxFont(18, wxFONTFAMILY_MODERN, wxFONTSTYLE_MAX, wxFONTWEIGHT_BOLD));
+    setTextStyle(title);
+    setTextStyle(cryp,15);
+    setTextStyle(coin,15);
+    setTextStyle(queue,15);
+    setTextStyle(crypSearch,14);
+    setTextStyle(coinSearch,14);
+    setTextStyle(value,18);
+    setTextStyle(delButton,18);
 
     wxTextCtrl* search = new wxTextCtrl(mainView,wxID_ANY,wxEmptyString,wxDefaultPosition,wxDefaultSize);
     search->Bind(wxEVT_TEXT,&MainFrame::onSearchCrypto,this);

@@ -43,4 +43,5 @@ class MainFrame : public wxFrame {
         std::unordered_map<int, uint64_t> deviceMap;
         int nextId = 1000;
         void OnDeviceSelected(wxCommandEvent& event);
+        void setTextStyle(wxWindow* label,int size=25);
 };
